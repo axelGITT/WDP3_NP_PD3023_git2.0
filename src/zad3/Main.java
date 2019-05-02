@@ -42,14 +42,112 @@ Klasę Main należy uzupełnić, tak, aby uzyskać właściwe rozwiązanie.
  *
  */
 
-
 package zad3;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
-  public static void main(String[] args) {
-    String fname = System.getProperty("user.home") + "/pakiety.txt";            
+	public static void main(String[] args) {
+		String fname = System.getProperty("user.home") + "/pakiety.txt";
+		/**
+		 * Lista wszystkich pakietow zapisanych na dysku
+		 */
+		List<Pakiet> wszystkiePakiety = new ArrayList<Pakiet>();
 
-  }
+		BufferedReader br = null;
+		/**
+		 * uzyta przestrzen dyskowa
+		 */
+		long useDiskSpace = 0;
+		/**
+		 * Przeformatowane dane z pliku
+		 */
+		String result = "";
+
+		/**
+		 * Licznik pakietow zapisanych na dysku
+		 */
+		int cnt = 0;
+
+		/**
+		 * flaga okreslajaca koniec zapisu pakietow na dysku
+		 */
+		boolean isFinished=false;
+
+		try {
+			br = new BufferedReader(new FileReader(fname));
+			String line;
+			// wczytanie danych z pliku
+			while ((line = br.readLine()) != null) {
+				// usuniecie bialych znakow
+				line = format(line);
+
+				if (!line.trim().isEmpty())
+					result += (line+" ");
+			}
+
+			String[] nums = result.split(" ");
+
+			// sprawdzenie poprawnosci danych w pliku - dane powinny
+			// zawierac rozmiar pakietu i pojemnosc dysku
+			if (nums.length != 2)
+				throw new Exception();
+
+			// wczytanie danych z pliku, Metoda trim dodatkowo usuwa biale
+			// znaki z poczatku i konca wczytanej danej
+			long size = Long.parseLong(nums[0].trim());
+			long diskSpace = Long.parseLong(nums[1].trim());
+
+			// zamiana jednostek MB->bajt
+			diskSpace *= 1048576;
+
+			// analiza danych
+			while (!isFinished) {
+				cnt++;
+				if (cnt >= 2 && cnt <= 5)
+					size *= 2;
+				else if (cnt >= 6)
+					size *= 3;
+
+				if (useDiskSpace + size <= diskSpace) {
+					Pakiet pakiet = new Pakiet(cnt, size);
+					wszystkiePakiety.add(pakiet);
+					useDiskSpace += size;
+				}else
+					isFinished=true;
+			}
+
+			// wypisanie wyników - liczba pakietow, pakiety i uzyta przestrzen
+			// dyskowa
+			System.out.println(--cnt);
+
+			for (Pakiet p : wszystkiePakiety)
+				System.out.println(p);
+
+			System.out.println(useDiskSpace);
+		} catch (Exception e) {
+			System.out.println("***");
+
+		} finally {
+			if (br != null)
+				try {
+					br.close();
+				} catch (IOException e) {
+					System.out.println("***");
+				}
+		}
+	}
+
+	private static String format(String line) {
+		line = line.replace("\n", " ");
+		line = line.replace("\t", " ");
+		line = line.trim();
+
+		return line;
+	}
 }
