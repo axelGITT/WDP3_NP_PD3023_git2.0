@@ -124,6 +124,7 @@ public class Main {
 
 			// wypisanie wyników - liczba pakietow, pakiety i uzyta przestrzen
 			// dyskowa
+			//test
 			System.out.println(--cnt);
 
 			for (Pakiet p : wszystkiePakiety)
